@@ -46,3 +46,7 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+#secrets (real values stay local, only the *.example.dart is committed)
+/lib/core/secrets/*
+!/lib/core/secrets/app_secrets.example.dart
