@@ -11,3 +11,4 @@ final class AppUserLoggedIn extends AppUserState {
   final User user;
   const AppUserLoggedIn({required this.user});
 }
+ 

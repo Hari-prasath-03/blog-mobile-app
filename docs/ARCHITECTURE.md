@@ -1,8 +1,6 @@
 # Blog App — Architecture
 
-> Status: **auth feature implemented** (signup / login / current-user with Supabase). Blog posts feature not yet added — the structure is ready for it.
-
-This document describes how the codebase is organized and *why* it's set up this way, so any developer can extend it consistently and in the same spirit. Sections marked "Diagram" (or `> [DIAGRAM n ...]`) are placeholders — paste the corresponding visual there.
+> Status: **auth feature implemented** (signup / login / current-user with Supabase).
 
 ---
 
@@ -57,8 +55,6 @@ lib/
                 └── auth_gradient_button.dart
 ```
 
-> [DIAGRAM 1 — paste a folder-tree / feature tree visual here]
-
 **Why:** grouping by feature (`features/auth/`) means everything that changes together stays near each other, and adding a new vertical (e.g. `features/blog/`) is just another folder. Code shared across features is pulled up into `core/` so it isn't duplicated. This is the canonical Flutter Clean-Architecture layout.
 
 ---
@@ -75,11 +71,9 @@ Domain (repository interface + usecases + entity)
       │  depends on an interface, not the implementation
       ▼
 Data (remote datasource, models, repository impl)
-      ▼
-Supabase
 ```
 
-> [DIAGRAM 2 — paste a layer-dependency / control-flow diagram here]
+![Clean Architecture (Flutter)](diagrams/clean-architecture-flutter.png)
 
 ### Domain layer (pure Dart)
 - `AuthRepository` — abstract interface returning `Either<Failure, User>`.
@@ -96,7 +90,16 @@ Supabase
 - `AppUserCubit` (a global cubit) holds the logged-in `User` for the whole app; `AuthBloc` updates it on success.
 - Pages are plain widgets: they dispatch events and react to state. No business logic lives in the UI.
 
-**Why:** the dependency rule means the UI only knows an interface (`AuthRepository`), never the datasource or Supabase directly. That keeps the domain testable and swappable (e.g. a mock repo), and the layer boundaries are what make the app maintainable as features grow.
+**Why:** the dependency rule means the UI only knows an interface (`AuthRepository`), never the datasource or Supabase directly. That keeps the domain testable and swappable (e.g. a mock repo), and the layer boundaries are what make the app maintainable as features grow. The layers follow the SOLID principles, applied to this codebase:
+
+![SOLID Principles](diagrams/solid-principles.png)
+
+**How each principle maps to the code:**
+- **S — Single Responsibility**: layered classes each do one thing (`AuthRepository` defines contracts, usecases orchestrate, `AuthBloc` handles state, widgets render).
+- **O — Open/Closed**: sealed BLoC states and `abstract interface` repositories allow new states/implementations without changing consumers.
+- **L — Liskov**: `UserModel extends User`, so any code expecting a `User` can be given a `UserModel`.
+- **I — Interface Segregation**: usecases consume the small, focused `AuthRepository` interface rather than one fat service.
+- **D — Dependency Inversion**: presentation depends on the abstract `AuthRepository`, and GetIt injects `AuthRepositoryImpl` — high-level code never references the concrete Supabase impl directly.
 
 ---
 
@@ -115,8 +118,6 @@ sl.registerFactory(() => CurrentUser(authRepository: sl()));
 sl.registerLazySingleton(() => AuthBloc(userSignUp: sl(), userLogin: sl(), currentUser: sl(), appUserCubit: sl()));
 ```
 
-> [DIAGRAM 3 — paste the DI graph: datasource → repository → usecases → bloc → pages]
-
 **Why:** dependencies are constructor-injected top-down (`sl()` resolves lazily at call time), so nothing is hard-wired inside widgets and the same usecases/repositories can be swapped for mocks in tests. GetIt is a small, dependency-light service locator.
 
 ---
@@ -125,8 +126,6 @@ sl.registerLazySingleton(() => AuthBloc(userSignUp: sl(), userLogin: sl(), curre
 
 - The real `app_secrets.dart` (Supabase URL + anon key) is **gitignored** and untracked — it exists only locally, never pushed.
 - `app_secrets.example.dart` is committed with placeholder values so a new developer knows exactly what fields to fill and their shape.
-
-> [DIAGRAM 4 — optional: paste a "who has the key" / secrets-flow visual]
 
 **Why:** credentials stay out of version control while keeping the example (and the expected structure) inside the repo for discoverability. On a fresh clone you copy `app_secrets.example.dart → app_secrets.dart` and fill the real values.
 
@@ -157,7 +156,5 @@ SignupPage ──AuthSignUp──▶ AuthBloc ──UserSignUp usecase──▶ 
       ▲                                                        │
       └────── AuthSuccess/AuthFailure ◀── AppUserCubit ◀──────┘
 ```
-
-> [DIAGRAM 5 — paste the auth sequence/flow diagram here]
 
 **Why:** every path returns `Either<Failure, User>` from the repository, so the bloc paints `AuthFailure` messages straight into a snackbar — uniform, predictable error handling with no exceptions leaking past the repository boundary.
