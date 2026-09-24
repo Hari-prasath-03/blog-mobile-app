@@ -13,7 +13,7 @@ class LoginPage extends StatefulWidget {
   static MaterialPageRoute<dynamic> route() =>
       MaterialPageRoute(builder: (context) => const LoginPage());
 
-  const new({super.key});
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -53,11 +53,6 @@ class _LoginPageState extends State<LoginPage> {
             listener: (context, state) {
               if (state is AuthFailure) {
                 showSnackBar(context, state.message);
-              } else if (state is AuthSuccess) {
-                showSnackBar(
-                  context,
-                  'Hey! ${state.user.name}, The login is successfull',
-                );
               }
             },
             builder: (context, state) {

@@ -5,7 +5,7 @@ class AuthFormField extends StatelessWidget {
   final TextEditingController controller;
   final bool obscureText;
 
-  const new({
+  const AuthFormField({
     super.key,
     required this.hintText,
     required this.controller,

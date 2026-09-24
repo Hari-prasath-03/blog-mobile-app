@@ -13,7 +13,7 @@ class SignupPage extends StatefulWidget {
   static MaterialPageRoute<dynamic> route() =>
       MaterialPageRoute(builder: (context) => const SignupPage());
 
-  const new({super.key});
+  const SignupPage({super.key});
 
   @override
   State<SignupPage> createState() => _SignupPageState();
@@ -57,15 +57,10 @@ class _SignupPageState extends State<SignupPage> {
             listener: (context, state) {
               if (state is AuthFailure) {
                 showSnackBar(context, state.message);
-              } else if (state is AuthSuccess) {
-                showSnackBar(
-                  context,
-                  'Hey! ${state.user.name}, The registration is successfull',
-                );
               }
             },
             builder: (context, state) {
-              if (state is AuthLoading) return Loader();
+              if (state is AuthLoading) return const Loader();
               return Form(
                 key: formKey,
                 child: Column(
