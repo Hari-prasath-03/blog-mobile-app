@@ -1,18 +1,17 @@
 import 'package:blog_app/core/common/widgets/keyboard_safe_scroll.dart';
 import 'package:blog_app/core/common/widgets/loader.dart';
+import 'package:blog_app/core/extension/app_extension.dart';
 import 'package:blog_app/core/theme/app_pallet.dart';
 import 'package:blog_app/core/utils/show_snackbar.dart';
 import 'package:blog_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:blog_app/features/auth/presentation/pages/login_page.dart';
 import 'package:blog_app/features/auth/presentation/widgets/auth_form_field.dart';
 import 'package:blog_app/features/auth/presentation/widgets/auth_gradient_button.dart';
+import 'package:blog_app/features/blog/presentation/pages/blog_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SignupPage extends StatefulWidget {
-  static MaterialPageRoute<dynamic> route() =>
-      MaterialPageRoute(builder: (context) => const SignupPage());
-
   const SignupPage({super.key});
 
   @override
@@ -57,6 +56,8 @@ class _SignupPageState extends State<SignupPage> {
             listener: (context, state) {
               if (state is AuthFailure) {
                 showSnackBar(context, state.message);
+              } else if (state is AuthSuccess) {
+                context.nav.pushAndRemoveUntil(const BlogPage());
               }
             },
             builder: (context, state) {
@@ -101,7 +102,7 @@ class _SignupPageState extends State<SignupPage> {
 
                     GestureDetector(
                       onTap: () {
-                        Navigator.of(context).push(LoginPage.route());
+                        context.nav.push(const LoginPage());
                       },
                       child: RichText(
                         text: TextSpan(

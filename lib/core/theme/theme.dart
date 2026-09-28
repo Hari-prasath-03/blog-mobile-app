@@ -18,8 +18,15 @@ final class AppTheme {
 
     inputDecorationTheme: InputDecorationTheme(
       contentPadding: const EdgeInsets.all(26),
+      border: _border(),
       enabledBorder: _border(),
-      focusedBorder: _border(color: AppPallet.gradient2),
+      focusedBorder: _border(color: AppPallet.gradient1),
+      errorBorder: _border(color: AppPallet.errorColor),
+    ),
+
+    chipTheme: ChipThemeData(
+      color: MaterialStatePropertyAll(AppPallet.backgroundColor),
+      side: BorderSide.none,
     ),
   );
 }

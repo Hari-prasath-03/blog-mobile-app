@@ -22,7 +22,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this._currentUser,
     required this._appUserCubit,
   }) : super(AuthInitial()) {
-    on<AuthEvent>((_, emit) => emit(AuthInitial()));
+    on<AuthEvent>((_, emit) => emit(AuthLoading()));
     on<AuthSignUp>(_onAuthSignUp);
     on<AuthLogin>(_onAuthLogin);
     on<AuthUserLoggedIn>(_onAuthCurrentUser);

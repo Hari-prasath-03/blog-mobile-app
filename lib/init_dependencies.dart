@@ -1,4 +1,5 @@
 import 'package:blog_app/core/common/cubits/app_user/app_user_cubit.dart';
+import 'package:blog_app/core/network/connection_checker.dart';
 import 'package:blog_app/core/secrets/app_secrets.dart';
 import 'package:blog_app/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:blog_app/features/auth/data/repositories/auth_repository_impl.dart';
@@ -7,45 +8,17 @@ import 'package:blog_app/features/auth/domain/usecases/current_user.dart';
 import 'package:blog_app/features/auth/domain/usecases/user_login.dart';
 import 'package:blog_app/features/auth/domain/usecases/user_sign_up.dart';
 import 'package:blog_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:blog_app/features/blog/data/datasources/blog_local_data_source.dart';
+import 'package:blog_app/features/blog/data/datasources/blog_remote_data_source.dart';
+import 'package:blog_app/features/blog/data/repositories/blog_repository_impl.dart';
+import 'package:blog_app/features/blog/domain/repositories/blog_repository.dart';
+import 'package:blog_app/features/blog/domain/usecases/get_all_blogs.dart';
+import 'package:blog_app/features/blog/domain/usecases/upload_blog.dart';
+import 'package:blog_app/features/blog/presentation/bloc/blog_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive/hive.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-final sl = GetIt.instance; // sl = service locator
-
-Future<void> initDependencies() async {
-  // supabase
-  final sb = await Supabase.initialize(
-    url: AppSecrets.supabaseUrl,
-    anonKey: AppSecrets.supabaseAnonKey,
-  );
-  sl.registerLazySingleton<SupabaseClient>(() => sb.client);
-
-  // core
-  sl.registerLazySingleton(() => AppUserCubit());
-
-  // features - auth
-  _initAuth();
-}
-
-void _initAuth() {
-  sl.registerFactory<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(sbClient: sl()),
-  );
-
-  sl.registerFactory<AuthRepository>(
-    () => AuthRepositoryImpl(authRemoteDataSource: sl()),
-  );
-
-  sl.registerFactory(() => UserSignUp(authRepository: sl()));
-  sl.registerFactory(() => UserLogin(authRepository: sl()));
-  sl.registerFactory(() => CurrentUser(authRepository: sl()));
-
-  sl.registerLazySingleton(
-    () => AuthBloc(
-      userSignUp: sl(),
-      userLogin: sl(),
-      currentUser: sl(),
-      appUserCubit: sl(),
-    ),
-  );
-}
+part 'init_dependencies.main.dart';
